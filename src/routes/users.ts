@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { register } from "../controllers/users/register";
-import { authenticate } from "../controllers/users/authenticate";
+import { register } from "../http/controllers/users/register";
+import { authenticate } from "../http/controllers/users/authenticate";
 
 export const usersRoutes = Router();
 
