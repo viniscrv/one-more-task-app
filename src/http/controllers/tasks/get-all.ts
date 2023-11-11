@@ -1,17 +1,16 @@
 import { Request, Response } from "express";
 import { PrismaTasksRepository } from "../../../repositories/prisma/prisma-tasks-repository";
-import { GetTaskService } from "../../../services/get-task";
 import { NotFoundError } from "../../../services/errors/not-found-error";
+import { GetAllTasksService } from "../../../services/get-all-tasks";
 
-export async function getTask(req: Request, res: Response) {
+export async function getAllTasks(req: Request, res: Response) {
   const userId = req.userId;
-  const { taskId } = req.params;
 
   try {
     const taskRepository = new PrismaTasksRepository();
-    const getTaskService = new GetTaskService(taskRepository);
+    const getAllTasksService = new GetAllTasksService(taskRepository);
 
-    const response = await getTaskService.execute({ userId, taskId });
+    const response = await getAllTasksService.execute({ userId });
     return res.status(200).json({ response });
   } catch (err) {
     if (err instanceof NotFoundError) {

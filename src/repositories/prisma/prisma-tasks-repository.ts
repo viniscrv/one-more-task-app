@@ -13,6 +13,16 @@ export class PrismaTasksRepository implements TasksRepository {
     return task;
   }
 
+  async findMany(id: string): Promise<Task[] | null> {
+    const tasks = await prisma.task.findMany({
+      where: {
+        userId: id,
+      },
+    });
+
+    return tasks;
+  }
+
   async create(data: Prisma.TaskUncheckedCreateInput) {
     const task = await prisma.task.create({
       data,
