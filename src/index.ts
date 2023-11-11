@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { usersRoutes } from "./routes/users";
+import { usersRoutes } from "./http/controllers/users/routes";
 
 dotenv.config();
 
@@ -14,6 +14,6 @@ app.use(express.json());
 app.use(usersRoutes);
 
 app.listen(PORT, function () {
-    console.clear();
-    console.log(`HTTP Server running on port ${PORT}`);
+  console.clear();
+  console.log(`HTTP Server running on port ${PORT}`);
 });

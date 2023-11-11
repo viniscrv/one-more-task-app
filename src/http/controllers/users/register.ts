@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
 import { z } from "zod";
-import { prisma } from "../../../lib/prisma";
-import { hash } from "bcryptjs";
+import { UserAlreadyExistsError } from "../../../services/errors/user-already-exists-error";
+import { PrismaUsersRepository } from "../../../repositories/prisma/prisma-users-repository";
+import { RegisterService } from "../../../services/register";
+import { Request, Response } from "express";
 
-export async function register(req: Request, res: Response): Promise<Response> {
+export async function register(req: Request, res: Response) {
   const registerBodySchema = z.object({
     username: z.string(),
     email: z.string().email(),
@@ -12,25 +13,18 @@ export async function register(req: Request, res: Response): Promise<Response> {
 
   const { username, email, password } = registerBodySchema.parse(req.body);
 
-  const userExists = await prisma.user.findFirst({
-    where: {
-      OR: [{ username }, { email }],
-    },
-  });
+  try {
+    const usersRepository = new PrismaUsersRepository();
+    const registerService = new RegisterService(usersRepository);
 
-  if (userExists) {
-    return res.status(403).json({ message: "Already registered user" });
+    await registerService.execute({ username, email, password });
+  } catch (err) {
+    if (err instanceof UserAlreadyExistsError) {
+      return res.status(409).send({ message: err.message });
+    }
+
+    throw err;
   }
 
-  const password_hash = await hash(password, 6);
-
-  await prisma.user.create({
-    data: {
-      username,
-      email,
-      password_hash,
-    },
-  });
-
-  return res.status(201);
+  return res.status(201).send();
 }
