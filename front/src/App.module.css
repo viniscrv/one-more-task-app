@@ -1,0 +1,19 @@
+.App {
+    width: 46rem;
+    margin: 0 auto;
+    background: rgba(31, 31, 31, 0.32);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8.4px);
+    -webkit-backdrop-filter: blur(8.4px);
+    padding: 2em 1em;
+}
+
+@media (max-width: 768px) {
+    .App {
+        max-width: 90%;
+        display: flex;
+        flex-direction: column;
+        font-size: .8em;
+    }
+}
