@@ -1,27 +1,42 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import styles from "./Tasks.module.css";
-import Task from "./Task";
+import Task, { taskProps } from "./Task";
 import Header from "./Header";
+import { api } from "../lib/axios";
+import { AxiosError } from "axios";
 
-interface taskListProps {
-  taskList: {
-    task: string;
-    isComplete: boolean;
-  }[];
-}
+const Tasks = () => {
+  const [tasks, setTasks] = useState([]);
+  const [updateTasks, setUpdateTasks] = useState(0);
 
-const Tasks = ({ taskList }: taskListProps) => {
-  const [newTaskList, setNewTaskList] = useState(taskList);
+  useEffect(() => {
+    const fetchData = async () => {
+      const tasks = await api.get("/tasks/list");
+
+      console.log(tasks.data.response.tasks);
+
+      setTasks(tasks.data.response.tasks);
+    };
+
+    fetchData();
+  }, [updateTasks]);
 
   const [taskText, setTaskText] = useState("");
 
   const [taskProgress, setTaskProgress] = useState(0);
 
-  const sizeTaskList = newTaskList.length;
+  const sizeTaskList = tasks.length;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setNewTaskList([...newTaskList, { task: taskText, isComplete: false }]);
+    // setTasks([...tasks, { task: taskText, complete: false }]);
+
+    await api.post(`/tasks/create`, {
+      name: taskText,
+      description: "",
+    });
+
+    setUpdateTasks(updateTasks + 1);
 
     setTaskText("");
   }
@@ -30,35 +45,51 @@ const Tasks = ({ taskList }: taskListProps) => {
     setTaskText(e.target.value);
   }
 
-  function deleteTask(taskToDelete: string) {
-    const tasksWithoutDeleted = newTaskList.filter((task) => {
-      if (task.task === taskToDelete) {
-        if (task.isComplete) {
-          setTaskProgress((prev) => prev - 1);
+  async function deleteTask(taskId: string) {
+    try {
+      await api.delete(`/tasks/${taskId}`);
+
+      tasks.filter((task: taskProps) => {
+        if (task.id === taskId) {
+          if (task.completed) {
+            setTaskProgress((prev) => prev - 1);
+          }
         }
+        return task.id !== taskId;
+      });
+
+      setUpdateTasks(updateTasks + 1);
+    } catch (err) {
+      if (err instanceof AxiosError && err?.response?.data?.message) {
+        return console.log(err.response.data.message);
       }
-
-      return task.task !== taskToDelete;
-    });
-
-    setNewTaskList(tasksWithoutDeleted);
+    }
   }
 
-  function toggleStatus(taskToToggle: string) {
-    const taskToggled = newTaskList.map((task) => {
-      if (task.task === taskToToggle) {
-        if (task.isComplete) {
-          setTaskProgress((prev) => prev - 1);
-        } else {
-          setTaskProgress((prev) => prev + 1);
+  async function toggleComplete(taskId: string) {
+    try {
+      await api.patch(`/tasks/${taskId}`);
+
+      console.log(tasks);
+
+      tasks.map((task: taskProps) => {
+        if (task.id === taskId) {
+          if (task.completed) {
+            setTaskProgress((prev) => prev - 1);
+          } else {
+            setTaskProgress((prev) => prev + 1);
+          }
+          return { ...task, complete: !task.completed };
         }
+        return task;
+      });
 
-        return { ...task, isComplete: !task.isComplete };
+      setUpdateTasks(updateTasks + 1);
+    } catch (err) {
+      if (err instanceof AxiosError && err?.response?.data?.message) {
+        return console.log(err.response.data.message);
       }
-      return task;
-    });
-
-    setNewTaskList(taskToggled);
+    }
   }
 
   return (
@@ -88,14 +119,16 @@ const Tasks = ({ taskList }: taskListProps) => {
       </div>
 
       <div>
-        {newTaskList.map((task) => {
+        {tasks.map((task: taskProps) => {
           return (
             <Task
-              key={task.task}
-              content={task.task}
-              status={task.isComplete}
+              key={task.id}
+              id={task.id}
+              name={task.name}
+              description={task.description}
+              completed={task.completed}
               onDelete={deleteTask}
-              onToggle={toggleStatus}
+              onToggle={toggleComplete}
             />
           );
         })}

@@ -2,29 +2,31 @@ import { Trash } from "phosphor-react";
 import React, { useState } from "react";
 import styles from "./Task.module.css";
 
-interface taskProps {
-  content: string;
-  status: boolean;
+export interface taskProps {
+  id: string;
+  name: string;
+  description: string;
+  completed: boolean;
   onDelete: (taskToDelete: string) => void;
   onToggle: (taskToToggle: string) => void;
 }
 
-const Task = ({ content, status, onDelete, onToggle }: taskProps) => {
+const Task = ({ id, name, description, completed, onDelete, onToggle }: taskProps) => {
   function handleDelete() {
-    onDelete(content);
+    onDelete(id);
   }
 
-  function handleStatus() {
-    onToggle(content);
+  function handleCompleted() {
+    onToggle(id);
   }
 
   return (
     <div className={styles.task}>
       <div>
-        <div className={!status ? styles.checkbox : styles.checkbox_complete}>
+        <div className={!completed ? styles.checkbox : styles.checkbox_complete}>
           <label>
-            {content}
-            <span onClick={handleStatus}>
+            {name}
+            <span onClick={handleCompleted}>
               <input type="checkbox" id="task" />
             </span>
           </label>

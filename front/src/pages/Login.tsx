@@ -35,7 +35,7 @@ const Login = () => {
 
   async function handleLogin(email: string, password: string) {
     try {
-      const { data } = await api.post("/login", {
+      const { data } = await api.post("/authenticate", {
         email,
         password,
       });

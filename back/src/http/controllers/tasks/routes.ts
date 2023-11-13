@@ -12,6 +12,6 @@ export const tasksRoutes = Router();
 tasksRoutes.post("/tasks/create", verifyJWT, createTask);
 tasksRoutes.get("/tasks/list", verifyJWT, getAllTasks);
 tasksRoutes.get("/tasks/:taskId", verifyJWT, getTask);
-tasksRoutes.put("/tasks/:taskId", verifyJWT, updateTask);
 tasksRoutes.patch("/tasks/:taskId", verifyJWT, changeStatusTask);
+tasksRoutes.put("/tasks/:taskId", verifyJWT, updateTask);
 tasksRoutes.delete("/tasks/:taskId", verifyJWT, deleteTask);
