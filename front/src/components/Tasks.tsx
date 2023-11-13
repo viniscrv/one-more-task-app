@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from "react";
 import styles from "./Tasks.module.css";
 import Task from "./Task";
+import Header from "./Header";
 
 interface taskListProps {
   taskList: {
@@ -31,7 +32,6 @@ const Tasks = ({ taskList }: taskListProps) => {
 
   function deleteTask(taskToDelete: string) {
     const tasksWithoutDeleted = newTaskList.filter((task) => {
-      
       if (task.task === taskToDelete) {
         if (task.isComplete) {
           setTaskProgress((prev) => prev - 1);
@@ -62,7 +62,8 @@ const Tasks = ({ taskList }: taskListProps) => {
   }
 
   return (
-    <>
+    <div className={styles.App}>
+      <Header />
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -99,7 +100,7 @@ const Tasks = ({ taskList }: taskListProps) => {
           );
         })}
       </div>
-    </>
+    </div>
   );
 };
 
